@@ -20,7 +20,7 @@ router = APIRouter()
 @router.post("/upscale", responses={200: {"description": "image", "content": {"image/png": {}}}})
 async def post_generation(request: Request, file: UploadFile, background_tasks: BackgroundTasks):
     def remove_file(task_id):
-        os.remove("{task_id}.png")
+        os.remove(f"{task_id}.png")
         os.remove(f"{task_id}_SwinIR.png")
 
     now = datetime.utcnow().timestamp()
@@ -55,5 +55,6 @@ async def post_generation(request: Request, file: UploadFile, background_tasks: 
     output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
     cv2.imwrite(f"{task_id}_SwinIR.png", output)
     clear_memory()
+    background_tasks.add_task(remove_file, task_id)
 
-    return FileResponse(path=f"{task_id}_SwinIR.png", background=BackgroundTasks.add_task(remove_file, task_id))
+    return FileResponse(path=f"{task_id}_SwinIR.png", background=background_tasks)

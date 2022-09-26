@@ -19,7 +19,7 @@ def load_model(app: FastAPI) -> None:
     if not os.path.exists(model_path) or not os.path.isfile(model_path):
         logger.warning(f"{model_path} is not valid path, try to download model")
         try:
-            model_hash = download_model(MODEL_INFO[model_name]["model_url"], model_path)
+            model_hash = download_model(MODEL_INFO[model_name].model_url, model_path)
         except Exception as e:
             logger.error(f"Error : {e}")
             exit(ExitCodeEnum.MODEL_DOWNLOAD_ERROR)
@@ -29,7 +29,7 @@ def load_model(app: FastAPI) -> None:
     if model_hash != MODEL_INFO[model_name].sha_256:
         logger.error(f"Sha256 value({model_hash}) is not valid, try to download model")
         try:
-            model_hash = download_model(MODEL_INFO[model_name]["model_url"], model_path)
+            model_hash = download_model(MODEL_INFO[model_name].model_url, model_path)
         except Exception as e:
             logger.error(f"Error : {e}")
             exit(ExitCodeEnum.MODEL_DOWNLOAD_ERROR)
