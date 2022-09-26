@@ -5,14 +5,13 @@ RUN \
     apt-get update && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    build-essential \
     ca-certificates \
+    curl \
     g++ \
     python3.8 \
     python3.8-dev \
     python3.8-distutils \
-    python3.8-venv \
-    python3-venv \
-    curl \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
@@ -20,12 +19,6 @@ RUN \
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
-
-RUN python3.8 -m venv /home/venv
-
-ENV PATH="/home/venv/bin:$PATH"
-
-RUN python -m pip install -U pip setuptools
 
 # set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -37,11 +30,7 @@ ENV PATH="$POETRY_HOME/bin:$VIRTUAL_ENVIRONMENT_PATH/bin:$PATH"
 
 # Install Poetry
 # https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-    build-essential \
-    curl \
-    && curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
 WORKDIR /app
 COPY ./pyproject.toml ./pyproject.toml
