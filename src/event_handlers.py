@@ -50,6 +50,6 @@ def start_app_handler(app: FastAPI) -> Callable:
 
 def stop_app_handler(app: FastAPI) -> Callable:
     def shutdown() -> None:
-        pass
+        del app.state.model
 
     return shutdown
