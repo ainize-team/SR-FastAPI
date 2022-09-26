@@ -1,10 +1,11 @@
+import os
 import uuid
 from datetime import datetime
 
 import cv2
 import numpy as np
 import torch
-from fastapi import APIRouter, HTTPException, Request, UploadFile
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 
 from constants import MODEL_INFO
@@ -17,7 +18,11 @@ router = APIRouter()
 
 
 @router.post("/upscale", responses={200: {"description": "image", "content": {"image/png": {}}}})
-async def post_generation(request: Request, file: UploadFile):
+async def post_generation(request: Request, file: UploadFile, background_tasks: BackgroundTasks):
+    def remove_file(task_id):
+        os.remove("{task_id}.png")
+        os.remove(f"{task_id}_SwinIR.png")
+
     now = datetime.utcnow().timestamp()
     task_id = str(uuid.uuid5(uuid.NAMESPACE_OID, str(now)))
     if file.content_type == "image/png":
@@ -50,4 +55,5 @@ async def post_generation(request: Request, file: UploadFile):
     output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
     cv2.imwrite(f"{task_id}_SwinIR.png", output)
     clear_memory()
-    return FileResponse(path=f"{task_id}_SwinIR.png")
+
+    return FileResponse(path=f"{task_id}_SwinIR.png", background=BackgroundTasks.add_task(remove_file, task_id))
