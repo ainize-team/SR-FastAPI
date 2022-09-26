@@ -9,6 +9,18 @@ RUN \
     ca-certificates \
     curl \
     g++ \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer1.0-dev \
+    libgtk2.0-dev \
+    libgtk-3-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libopenexr-dev\ 
+    libtiff-dev \
+    libwebp-dev \
     python3.8 \
     python3.8-dev \
     python3.8-distutils \
