@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from constants import MODEL_INFO
-from enums import ExitCodeEnum
+from enums import DeviceEnum, ExitCodeEnum
 from settings import model_settings
 from utils import define_model, download_model, get_hash
 
@@ -38,6 +38,8 @@ def load_model(app: FastAPI) -> None:
             exit(ExitCodeEnum.MODEL_CHECKSUM_ERROR)
     app.state.model = define_model(model_name, model_path)
     app.state.model.to(model_settings.device)
+    if model_settings.device == DeviceEnum.CUDA:
+        app.state.model.half()
     logger.info("The model was successfully loaded.")
 
 
