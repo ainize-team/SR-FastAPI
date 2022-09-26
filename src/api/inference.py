@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse
 from constants import MODEL_INFO
 from models import SwinIR
 from settings import model_settings
+from utils import clear_memory
 
 
 router = APIRouter()
@@ -48,5 +49,5 @@ async def post_generation(request: Request, file: UploadFile):
         output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
     output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
     cv2.imwrite(f"{task_id}_SwinIR.png", output)
-
+    clear_memory()
     return FileResponse(path=f"{task_id}_SwinIR.png")

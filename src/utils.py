@@ -1,3 +1,4 @@
+import gc
 import hashlib
 import os
 
@@ -67,3 +68,9 @@ def define_model(model_name: ModelEnum, model_path: str) -> SwinIR:
     model.eval()
 
     return model
+
+
+def clear_memory() -> None:
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
