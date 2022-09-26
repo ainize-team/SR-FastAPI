@@ -14,7 +14,7 @@ class ServerSettings(BaseSettings):
 class ModelSettings(BaseSettings):
     device: DeviceEnum = DeviceEnum.CUDA if torch.cuda.is_available() else DeviceEnum.CPU
     model_name: ModelEnum = ModelEnum.SWIN_LR_LARGE_X4
-    model_path: str = f"./model/{MODEL_INFO[ModelEnum.SWIN_LR_LARGE_X4.file_name]}"
+    model_path: str = f"./model/{MODEL_INFO[ModelEnum.SWIN_LR_LARGE_X4].file_name}"
 
 
 server_settings = ServerSettings()

@@ -27,6 +27,8 @@ loguru = "^0.6.0"
 requests = "^2.28.1"
 timm = "^0.6.7"
 uvicorn = "^0.18.3"
+python-multipart = "^0.0.5"
+opencv-python = "^4.6.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
