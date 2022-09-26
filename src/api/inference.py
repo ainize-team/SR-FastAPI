@@ -34,7 +34,7 @@ async def post_generation(request: Request, file: UploadFile, background_tasks: 
     model: SwinIR = request.app.state.model
     window_size = 8
     scale = MODEL_INFO[model_settings.model_name].scale
-    img_lq = img_lq = cv2.imread(f"{task_id}.png", cv2.IMREAD_COLOR).astype(np.float32) / 255.0
+    img_lq = cv2.imread(f"{task_id}.png", cv2.IMREAD_COLOR).astype(np.float32) / 255.0
     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]], (2, 0, 1))  # HCW-BGR to CHW-RGB
     img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(model_settings.device)  # CHW-RGB to NCHW-RGB
     # inference
