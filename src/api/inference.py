@@ -16,7 +16,7 @@ from utils import clear_memory
 router = APIRouter()
 
 
-@router.post("/upscale", response_model=str)
+@router.post("/upscale", responses={200: {"description": "image", "content": {"image/png": {}}}})
 async def post_generation(request: Request, file: UploadFile):
     now = datetime.utcnow().timestamp()
     task_id = str(uuid.uuid5(uuid.NAMESPACE_OID, str(now)))
