@@ -16,7 +16,7 @@ use_parentheses = true
 name = "SR-FastAPI"
 version = "0.1.0"
 description = ""
-authors = ["YoungJae Kim <corea_kyj@naver.com>"]
+authors = ["YoungJae Kim <byeongal@comcom.ai>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
