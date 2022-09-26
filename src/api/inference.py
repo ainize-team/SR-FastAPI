@@ -32,7 +32,6 @@ async def post_generation(request: Request, file: UploadFile, background_tasks: 
     else:
         raise HTTPException(status_code=400, detail="Only Support PNG file")
     model: SwinIR = request.app.state.model
-    window_size = 8
     scale = MODEL_INFO[model_settings.model_name].scale
     img_lq = cv2.imread(f"{task_id}.png", cv2.IMREAD_COLOR).astype(np.float32) / 255.0
     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]], (2, 0, 1))  # HCW-BGR to CHW-RGB
@@ -41,10 +40,6 @@ async def post_generation(request: Request, file: UploadFile, background_tasks: 
     with torch.no_grad():
         # pad input image to be a multiple of window_size
         _, _, h_old, w_old = img_lq.size()
-        h_pad = (h_old // window_size + 1) * window_size - h_old
-        w_pad = (w_old // window_size + 1) * window_size - w_old
-        img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[:, :, : h_old + h_pad, :]
-        img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, : w_old + w_pad]
         output = model(img_lq)
         output = output[..., : h_old * scale, : w_old * scale]
 
