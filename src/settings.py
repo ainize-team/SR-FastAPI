@@ -17,5 +17,13 @@ class ModelSettings(BaseSettings):
     model_path: str = f"./model/{MODEL_INFO[ModelEnum.SWIN_LR_LARGE_X4].file_name}"
 
 
+class FirebaseSettings(BaseSettings):
+    firebase_app_name: str = "super-resolution"
+    cred_path: str = "./key/serviceAccountKey.json"
+    database_url: str
+    storage_bucket: str
+
+
 server_settings = ServerSettings()
 model_settings = ModelSettings()
+firebase_settings = FirebaseSettings()
