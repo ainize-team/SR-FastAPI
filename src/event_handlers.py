@@ -1,17 +1,18 @@
 import os
 from typing import Callable
 
+import firebase_admin
 from fastapi import FastAPI
+from firebase_admin import credentials
 from loguru import logger
 
 from constants import MODEL_INFO
 from enums import DeviceEnum, ExitCodeEnum
-from settings import model_settings
+from settings import firebase_settings, model_settings
 from utils import define_model, download_model, get_hash
 
 
-def load_model(app: FastAPI) -> None:
-
+def _load_model(app: FastAPI) -> None:
     model_name = model_settings.model_name
     model_path = model_settings.model_path
 
@@ -43,9 +44,18 @@ def load_model(app: FastAPI) -> None:
     logger.info("The model was successfully loaded.")
 
 
+def _init_firebase() -> None:
+    cred = credentials.Certificate(firebase_settings.cred_path)
+    firebase_admin.initialize_app(
+        cred,
+        {"databaseURL": firebase_settings.database_url, "storageBucket": firebase_settings.storage_bucket},
+    )
+
+
 def start_app_handler(app: FastAPI) -> Callable:
     def startup() -> None:
-        load_model(app)
+        _load_model(app)
+        _init_firebase()
 
     return startup
 
