@@ -1,50 +1,15 @@
-import os
 from typing import Callable
 
 import firebase_admin
+from celery import Celery
 from fastapi import FastAPI
 from firebase_admin import credentials
 from loguru import logger
 
-from constants import MODEL_INFO
-from enums import DeviceEnum, ExitCodeEnum
-from settings import firebase_settings, model_settings
-from utils import define_model, download_model, get_hash
+from settings import celery_settings, firebase_settings
 
 
-def _load_model(app: FastAPI) -> None:
-    model_name = model_settings.model_name
-    model_path = model_settings.model_path
-
-    # if model path is not valid, try to download model from url
-    if not os.path.exists(model_path) or not os.path.isfile(model_path):
-        logger.warning(f"{model_path} is not valid path, try to download model")
-        try:
-            model_hash = download_model(MODEL_INFO[model_name].model_url, model_path)
-        except Exception as e:
-            logger.error(f"Error : {e}")
-            exit(ExitCodeEnum.MODEL_DOWNLOAD_ERROR)
-    else:
-        model_hash = get_hash(model_path)
-    logger.info("Check sha256 value")
-    if model_hash != MODEL_INFO[model_name].sha_256:
-        logger.error(f"Sha256 value({model_hash}) is not valid, try to download model")
-        try:
-            model_hash = download_model(MODEL_INFO[model_name].model_url, model_path)
-        except Exception as e:
-            logger.error(f"Error : {e}")
-            exit(ExitCodeEnum.MODEL_DOWNLOAD_ERROR)
-        if model_hash != MODEL_INFO[model_name].sha_256:
-            logger.error(f"Sha256 value({model_hash}) is not valid.")
-            exit(ExitCodeEnum.MODEL_CHECKSUM_ERROR)
-    app.state.model = define_model(model_name, model_path)
-    app.state.model.to(model_settings.device)
-    if model_settings.device == DeviceEnum.CUDA:
-        app.state.model.half()
-    logger.info("The model was successfully loaded.")
-
-
-def _init_firebase() -> None:
+def _setup_firebase() -> None:
     cred = credentials.Certificate(firebase_settings.cred_path)
     firebase_admin.initialize_app(
         cred,
@@ -52,16 +17,21 @@ def _init_firebase() -> None:
     )
 
 
+def _setup_celery(app: FastAPI) -> None:
+    logger.info("Setup Celery")
+    app.state.celery = Celery(broker=celery_settings.broker_uri)
+
+
 def start_app_handler(app: FastAPI) -> Callable:
     def startup() -> None:
-        _load_model(app)
-        _init_firebase()
+        _setup_firebase()
+        _setup_celery(app)
 
     return startup
 
 
 def stop_app_handler(app: FastAPI) -> Callable:
     def shutdown() -> None:
-        del app.state.model
+        del app.state.celery
 
     return shutdown

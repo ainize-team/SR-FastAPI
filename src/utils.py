@@ -1,76 +1,25 @@
-import gc
-import hashlib
 import os
+from datetime import datetime
 
-import requests
-import torch
+from firebase_admin import storage
+from pydantic import HttpUrl
 
-from enums import ModelEnum
-from models import SwinIR
-
-
-def get_hash(model_path: str) -> str:
-    with open(model_path, "rb") as f:
-        data = f.read()
-        model_hash = hashlib.sha256(data).hexdigest()
-    return model_hash
+from settings import firebase_settings
 
 
-def download_model(model_url: str, model_path: str) -> str:
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    res = requests.get(model_url, allow_redirects=True)
-    if res.status_code == 200:
-        model_hash = hashlib.sha256(res.content).hexdigest()
-        with open(model_path, "wb") as f:
-            f.write(res.content)
-        return model_hash
-    else:
-        raise requests.exceptions.RequestException(f"Model download error: {res.status_code}")
+def get_now_timestamp() -> int:
+    return int(datetime.utcnow().timestamp() * 1000)
 
 
-def define_model(model_name: ModelEnum, model_path: str) -> SwinIR:
-    # 003 real-world image sr
-    if model_name == ModelEnum.SWIN_LR_X4:
-        model = SwinIR(
-            upscale=4,
-            in_chans=3,
-            img_size=64,
-            window_size=8,
-            img_range=1.0,
-            depths=[6, 6, 6, 6, 6, 6],
-            embed_dim=180,
-            num_heads=[6, 6, 6, 6, 6, 6],
-            mlp_ratio=2,
-            upsampler="nearest+conv",
-            resi_connection="1conv",
-        )
-        param_key_g = "params_ema"
-    elif model_name == ModelEnum.SWIN_LR_LARGE_X4:
-        model = SwinIR(
-            upscale=4,
-            in_chans=3,
-            img_size=64,
-            window_size=8,
-            img_range=1.0,
-            depths=[6, 6, 6, 6, 6, 6, 6, 6, 6],
-            embed_dim=240,
-            num_heads=[8, 8, 8, 8, 8, 8, 8, 8, 8],
-            mlp_ratio=2,
-            upsampler="nearest+conv",
-            resi_connection="3conv",
-        )
-        param_key_g = "params_ema"
+def save_image_to_storage(task_id: str, image_path: str) -> HttpUrl:
+    app_name = firebase_settings.firebase_app_name
+    bucket = storage.bucket()
+    base_name = os.path.basename(image_path)
 
-    pretrained_model = torch.load(model_path)
-    model.load_state_dict(
-        pretrained_model[param_key_g] if param_key_g in pretrained_model.keys() else pretrained_model, strict=True
-    )
-    model.eval()
+    blob = bucket.blob(f"{app_name}/results/{task_id}/{base_name}")
+    blob.upload_from_filename(image_path)
+    blob.make_public()
 
-    return model
+    url = blob.public_url
 
-
-def clear_memory() -> None:
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
+    return url
