@@ -34,6 +34,6 @@ class InitSuperResolutionData(BaseModel):
 
 
 class SuperResolutionResponse(BaseModel):
-    output: HttpUrl
+    output: Optional[HttpUrl]
     status: ResponseStatusEnum = ResponseStatusEnum.PENDING
     updated_at: int = 0
