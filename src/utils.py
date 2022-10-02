@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 from firebase_admin import storage
-from pydantic import HttpUrl
 
 from settings import firebase_settings
 
@@ -11,7 +10,7 @@ def get_now_timestamp() -> int:
     return int(datetime.utcnow().timestamp() * 1000)
 
 
-def save_image_to_storage(task_id: str, image_path: str) -> HttpUrl:
+def save_image_to_storage(task_id: str, image_path: str) -> str:
     app_name = firebase_settings.firebase_app_name
     bucket = storage.bucket()
     base_name = os.path.basename(image_path)
