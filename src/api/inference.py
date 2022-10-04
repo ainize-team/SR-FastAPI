@@ -2,8 +2,10 @@ import os
 import shutil
 import uuid
 
+import requests
 from fastapi import APIRouter, HTTPException, Request, UploadFile, status
 from firebase_admin import db
+from pydantic import HttpUrl
 
 from enums import ResponseStatusEnum
 from schemas import AsyncTaskResponse, Images, InitSuperResolutionData, SuperResolutionResponse
@@ -38,6 +40,47 @@ async def post_generation(request: Request, file: UploadFile):
         ).dict()
     )
 
+    try:
+        celery = request.app.state.celery
+        celery.send_task(
+            name="upscale",
+            kwargs={
+                "task_id": task_id,
+            },
+            queue="sr",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Celery Error({task_id}): {e}")
+
+    return AsyncTaskResponse(task_id=task_id, updated_at=now)
+
+
+@router.post("/upscaleImgUrl", response_model=AsyncTaskResponse)
+async def post_generation_img_url(request: Request, url: HttpUrl):
+    now = get_now_timestamp()
+    task_id = str(uuid.uuid5(uuid.NAMESPACE_OID, str(now)))
+    try:
+        res = requests.get(url)
+        if res.headers.get("content-type") == "image/png":
+            input_path = f"{task_id}/input.png"
+            os.makedirs(task_id, exist_ok=True)
+            with open(input_path, "wb") as f:
+                f.write(res.content)
+            input_url = save_image_to_storage(task_id, input_path)
+            shutil.rmtree(task_id, ignore_errors=True)
+        else:
+            raise HTTPException(status_code=400, detail="Only Support PNG file")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Image URL Error : {e}")
+    app_name = firebase_settings.firebase_app_name
+    db.reference(f"{app_name}/{task_id}").set(
+        InitSuperResolutionData(
+            user_id="",
+            images=Images(input=input_url),
+            status=ResponseStatusEnum.PENDING,
+            updated_at=get_now_timestamp(),
+        ).dict()
+    )
     try:
         celery = request.app.state.celery
         celery.send_task(
