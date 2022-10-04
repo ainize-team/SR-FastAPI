@@ -1,8 +1,6 @@
-import torch
 from pydantic import BaseSettings
 
-from constants import MODEL_INFO
-from enums import DeviceEnum, EnvEnum, ModelEnum
+from enums import EnvEnum
 
 
 class ServerSettings(BaseSettings):
@@ -11,11 +9,17 @@ class ServerSettings(BaseSettings):
     app_env: EnvEnum = EnvEnum.DEV
 
 
-class ModelSettings(BaseSettings):
-    device: DeviceEnum = DeviceEnum.CUDA if torch.cuda.is_available() else DeviceEnum.CPU
-    model_name: ModelEnum = ModelEnum.SWIN_LR_LARGE_X4
-    model_path: str = f"./model/{MODEL_INFO[ModelEnum.SWIN_LR_LARGE_X4].file_name}"
+class CelerySettings(BaseSettings):
+    broker_uri: str = "amqp://guest:guest@localhost:5672//"
+
+
+class FirebaseSettings(BaseSettings):
+    firebase_app_name: str = "super-resolution"
+    cred_path: str = "./key/serviceAccountKey.json"
+    database_url: str
+    storage_bucket: str
 
 
 server_settings = ServerSettings()
-model_settings = ModelSettings()
+celery_settings = CelerySettings()
+firebase_settings = FirebaseSettings()
