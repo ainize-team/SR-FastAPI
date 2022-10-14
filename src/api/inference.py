@@ -77,7 +77,7 @@ async def post_generation_img_url(request: Request, url: HttpUrl):
             with open(input_path, "wb") as f:
                 f.write(res.content)
             try:
-                process(input_path, task_id, celery)
+                await process(input_path, task_id, celery)
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Server Error: {e}")
         else:
