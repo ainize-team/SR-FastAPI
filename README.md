@@ -1,4 +1,4 @@
-# Python Template Repository
+# SR-FastAPI
 
 [![Github Contributors](https://img.shields.io/github/contributors/ainize-team/SR-FastAPI)](https://github.com/badges/ainize-team/SR-FastAPI/contributors)
 [![GitHub issues](https://img.shields.io/github/issues/ainize-team/SR-FastAPI.svg)](https://github.com/ainize-team/SR-FastAPI/issues)
@@ -15,17 +15,20 @@
 ![Package Management](https://img.shields.io/badge/package%20management-poetry-blue)
 
 ## Description
+
 FastAPI Server for Super Resolution Model.
 
 ## Installation
+
 ```
 docker build -t sr-fastapi .
 ```
 
 ## Usage
+
 ```
 docker run -d --name <server_container_name> -p 8000:8000 \
--e APP_NAME=<server_app_name> \ 
+-e APP_NAME=<server_app_name> \
 -e BROKER_URI=<broker_uri> \
 -e FIREBASE_APP_NAME=<firebase_app_name> \
 -e DATABASE_URL=<firebase_realtime_database_url> \
@@ -33,6 +36,7 @@ docker run -d --name <server_container_name> -p 8000:8000 \
 -v <firebase_credential_path>:/app/key \
 sr-fastapi
 ```
+
 ## License
 
 [![Licence](https://img.shields.io/github/license/ainize-team/SR-FastAPI.svg)](./LICENSE)
