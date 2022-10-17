@@ -20,13 +20,17 @@ FastAPI Server for Super Resolution Model.
 
 ## Installation
 
-```
+1. Build FastAPI Docker Image
+
+```shell
+git clone https://github.com/ainize-team/SR-FastAPI
+cd SR-FastAPI
 docker build -t sr-fastapi .
 ```
 
-## Usage
+2. Run Docker Image
 
-```
+```shell
 docker run -d --name <server_container_name> -p 8000:8000 \
 -e APP_NAME=<server_app_name> \
 -e BROKER_URI=<broker_uri> \
@@ -35,6 +39,29 @@ docker run -d --name <server_container_name> -p 8000:8000 \
 -e STORAGE_BUCKET=<firebase_storage_url> \
 -v <firebase_credential_path>:/app/key \
 sr-fastapi
+```
+
+Or, you can use the .env file to run as follows.
+
+```shell
+docker run -d --name <server_container_name> -p 8000:8000 \
+--env-file <env filename> \
+-v <firebase_credential_path>:/app/key \
+sr-fastapi
+```
+
+## For Developers
+
+1. install dev package.
+
+```shell
+poetry install
+```
+
+2. install pre-commit.
+
+```shell
+pre-commit install
 ```
 
 ## License
