@@ -56,7 +56,7 @@ async def post_generation(request: Request, file: UploadFile):
             contents = await file.read()
             f.write(contents)
         try:
-            process(input_path, task_id, celery)
+            await process(input_path, task_id, celery)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Server Error: {e}")
     else:
