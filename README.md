@@ -18,17 +18,41 @@
 
 FastAPI Server for Super Resolution Model.
 
-## Installation
-
-1. Build FastAPI Docker Image
-
+## How to start
+### Using docker-compose(recommended)
+1. Clone repository
 ```shell
 git clone https://github.com/ainize-team/SR-FastAPI
 cd SR-FastAPI
+```
+
+2. Edit [docker-compose.yml](./docker-compose.yml), [rabbitmq.env](./envs/rabbitmq.env.sample) and [fastapi.env](./envs/fastapi.env.sample) for your project.
+
+3. Run containers
+```shell
+docker-compose up -d
+```
+
+4. (Optional) config rabbimq user setting
+```shell
+docker exec sr-rabbitmq -it /bin/bash
+cd scripts
+./init_rabbitmq
+```
+
+### Using docker
+1. Clone repository
+```shell
+git clone https://github.com/ainize-team/SR-FastAPI
+cd SR-FastAPI
+```
+
+2. Build docker image
+```shell
 docker build -t sr-fastapi .
 ```
 
-2. Run Docker Image
+3. Create docker container
 
 ```shell
 docker run -d --name <server_container_name> -p 8000:8000 \
@@ -41,13 +65,13 @@ docker run -d --name <server_container_name> -p 8000:8000 \
 sr-fastapi
 ```
 
-Or, you can use the .env file to run as follows.
+Or, you can use the [.env file](./envs/fastapi.env.sample) to run as follows.
 
 ```shell
-docker run -d --name <server_container_name> -p 8000:8000 \
---env-file <env filename> \
--v <firebase_credential_path>:/app/key \
-sr-fastapi
+docker build -t sr-fastapi .
+docker run -d --name sr-fastapi -p 8000:8000 \
+    --env-file .env \
+    -v <firebase_credential_dir_path>:/app/key sr-fastapi
 ```
 
 ## For Developers
