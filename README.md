@@ -35,8 +35,8 @@ docker run -d --name <server_container_name> -p 8000:8000 \
 -e APP_NAME=<server_app_name> \
 -e BROKER_URI=<broker_uri> \
 -e FIREBASE_APP_NAME=<firebase_app_name> \
--e DATABASE_URL=<firebase_realtime_database_url> \
--e STORAGE_BUCKET=<firebase_storage_url> \
+-e FIREBASE_DATABASE_URL=<firebase_realtime_database_url> \
+-e FIREBASE_STORAGE_BUCKET=<firebase_storage_url> \
 -v <firebase_credential_path>:/app/key \
 sr-fastapi
 ```
