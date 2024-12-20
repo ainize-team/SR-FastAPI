@@ -16,8 +16,8 @@ services:
     restart: unless-stopped
 
   api-server:
-    image: devainetwork/sr-api
-    container_name: sr-api
+    image: devainetwork/sr-fastapi
+    container_name: sr-fastapi
     ports:
       - 8000:8000
     env_file:
