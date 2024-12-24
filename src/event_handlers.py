@@ -13,7 +13,7 @@ def _setup_firebase() -> None:
     cred = credentials.Certificate(firebase_settings.cred_path)
     firebase_admin.initialize_app(
         cred,
-        {"databaseURL": firebase_settings.database_url, "storageBucket": firebase_settings.storage_bucket},
+        {"databaseURL": firebase_settings.firebase_database_url, "storageBucket": firebase_settings.firebase_storage_bucket},
     )
 
 
